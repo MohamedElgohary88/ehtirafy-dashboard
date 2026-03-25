@@ -14,6 +14,9 @@ const ServiceApprovalPage = lazy(() => import('./pages/ServiceApprovalPage').the
 const PendingPaymentsPage = lazy(() => import('./pages/PendingPaymentsPage').then(module => ({ default: module.PendingPaymentsPage })));
 
 function App() {
+  const routerBase = import.meta.env.BASE_URL === '/'
+    ? '/'
+    : import.meta.env.BASE_URL.replace(/\/$/, '');
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('token') || '');
 
   const isAuthenticated = useMemo(() => Boolean(authToken), [authToken]);
@@ -34,7 +37,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Router>
+      <Router basename={routerBase}>
         <Routes>
           <Route
             path="/login"
