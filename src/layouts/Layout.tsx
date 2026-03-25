@@ -21,6 +21,7 @@ import {
   Camera as CameraIcon,
   DoneAll as DoneAllIcon,
   Payment as PaymentIcon,
+  Logout as LogoutIcon,
   Brightness4 as Brightness4Icon,
   Brightness7 as Brightness7Icon,
   Language as LanguageIcon,
@@ -33,9 +34,10 @@ import { useLanguageDirection } from '../hooks';
 
 interface LayoutProps {
   children: React.ReactNode;
+  onLogout?: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
   const { t, i18n } = useTranslation();
   const { isDarkMode, toggleTheme } = useTheme();
   const isRTL = useLanguageDirection();
@@ -180,6 +182,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
+
+          {onLogout && (
+            <IconButton
+              color="inherit"
+              onClick={onLogout}
+              sx={{ border: theme => `1px solid ${theme.palette.divider}`, ml: 1 }}
+              title={t('nav.logout') || 'Logout'}
+            >
+              <LogoutIcon />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
 

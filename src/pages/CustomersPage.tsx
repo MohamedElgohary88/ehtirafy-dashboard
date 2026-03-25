@@ -10,7 +10,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CircularProgress,
   Alert,
   Chip,
   IconButton,
@@ -19,12 +18,14 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Stack,
 } from '@mui/material';
 import { Visibility as VisibilityIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
 import type { Customer } from '../types';
+import { PageLoadingState } from '../components/PageLoadingState';
 
 export const CustomersPage: React.FC = () => {
   const { t } = useTranslation();
@@ -44,9 +45,9 @@ export const CustomersPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="xl">
+        <PageLoadingState variant="table" />
+      </Container>
     );
   }
 
@@ -55,15 +56,34 @@ export const CustomersPage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
-        {t('customers.title')}
-      </Typography>
+    <Container maxWidth="xl">
+      <Paper
+        sx={{
+          p: { xs: 2, md: 3 },
+          mb: 3,
+          animation: 'ehtFadeRise 420ms ease both',
+          background: theme => theme.palette.mode === 'dark'
+            ? 'linear-gradient(140deg, rgba(64,47,15,0.72), rgba(40,30,12,0.78))'
+            : 'linear-gradient(140deg, rgba(243,224,173,0.72), rgba(255,249,235,0.86))',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+              {t('customers.title')}
+            </Typography>
+            <Typography color="text.secondary">
+              {t('customers.subtitle')}
+            </Typography>
+          </Box>
+          <Chip label={`${customers?.length || 0} ${t('nav.customers')}`} color="primary" />
+        </Stack>
+      </Paper>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ p: 0.5, animation: 'ehtFadeRise 560ms ease both' }}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: 'primary.light' }}>
+            <TableRow>
               <TableCell>{t('customers.name')}</TableCell>
               <TableCell>{t('customers.email')}</TableCell>
               <TableCell>{t('customers.phone')}</TableCell>
@@ -118,7 +138,7 @@ export const CustomersPage: React.FC = () => {
         <DialogTitle>{t('customers.viewDetails')}</DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
           {selectedCustomer && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.25 }}>
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   {t('customers.name')}

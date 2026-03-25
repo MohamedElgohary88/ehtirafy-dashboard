@@ -31,6 +31,13 @@ body {
     linear-gradient(180deg, #fdf8ed 0%, #f6efde 100%);
 }
 
+html[data-theme='dark'] body {
+  background:
+    radial-gradient(circle at 10% 8%, rgba(168, 123, 38, 0.2) 0%, transparent 36%),
+    radial-gradient(circle at 92% 20%, rgba(89, 65, 22, 0.34) 0%, transparent 34%),
+    linear-gradient(180deg, #1a1309 0%, #140f07 100%);
+}
+
 body::before {
   content: '';
   position: fixed;
@@ -54,4 +61,25 @@ html[dir='rtl'] {
 
 html[dir='ltr'] {
   direction: ltr;
+}
+
+@keyframes ehtFadeRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

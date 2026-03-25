@@ -10,7 +10,6 @@ import {
   Button,
   Chip,
   Grid,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -19,20 +18,23 @@ import {
   TextField,
   Divider,
   Paper,
+  Stack,
 } from '@mui/material';
 import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
 import type { PaymentProof } from '../types';
+import { PageLoadingState } from '../components/PageLoadingState';
 
 export const PendingPaymentsPage: React.FC = () => {
   const { t } = useTranslation();
-  const { data: payments, loading, error } = useData(() => apiService.getPendingPayments());
+  const { data: payments, loading, error, reload } = useData(() => apiService.getPendingPayments());
   const [selectedPayment, setSelectedPayment] = useState<PaymentProof | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [action, setAction] = useState<'approve' | 'reject' | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   const handleViewDetails = (payment: PaymentProof, actionType: 'approve' | 'reject') => {
     setSelectedPayment(payment);
@@ -50,23 +52,35 @@ export const PendingPaymentsPage: React.FC = () => {
 
   const handleApprovePayment = async () => {
     if (selectedPayment) {
-      await apiService.approvePayment(selectedPayment.id);
-      handleCloseDialog();
+      setProcessing(true);
+      try {
+        await apiService.approvePayment(selectedPayment.id);
+        await reload();
+        handleCloseDialog();
+      } finally {
+        setProcessing(false);
+      }
     }
   };
 
   const handleRejectPayment = async () => {
     if (selectedPayment) {
-      await apiService.rejectPayment(selectedPayment.id, rejectionReason);
-      handleCloseDialog();
+      setProcessing(true);
+      try {
+        await apiService.rejectPayment(selectedPayment.id, rejectionReason);
+        await reload();
+        handleCloseDialog();
+      } finally {
+        setProcessing(false);
+      }
     }
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="xl">
+        <PageLoadingState variant="cards" />
+      </Container>
     );
   }
 
@@ -77,10 +91,29 @@ export const PendingPaymentsPage: React.FC = () => {
   const pendingPayments = payments?.filter(p => p.status === 'pending') || [];
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
-        {t('payments.title')}
-      </Typography>
+    <Container maxWidth="xl">
+      <Paper
+        sx={{
+          p: { xs: 2, md: 3 },
+          mb: 3,
+          animation: 'ehtFadeRise 420ms ease both',
+          background: theme => theme.palette.mode === 'dark'
+            ? 'linear-gradient(140deg, rgba(64,47,15,0.72), rgba(40,30,12,0.78))'
+            : 'linear-gradient(140deg, rgba(243,224,173,0.72), rgba(255,249,235,0.86))',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+              {t('payments.title')}
+            </Typography>
+            <Typography color="text.secondary">
+              {t('payments.subtitle')}
+            </Typography>
+          </Box>
+          <Chip label={`${pendingPayments.length} ${t('payments.pending')}`} color="primary" />
+        </Stack>
+      </Paper>
 
       {pendingPayments.length === 0 ? (
         <Alert severity="success">
@@ -88,19 +121,22 @@ export const PendingPaymentsPage: React.FC = () => {
         </Alert>
       ) : (
         <Grid container spacing={3}>
-          {pendingPayments.map((payment) => (
+          {pendingPayments.map((payment, index) => (
             <Grid item xs={12} md={6} lg={4} key={payment.id}>
               <Card
                 sx={{
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  border: '2px solid',
+                  border: '1px solid',
                   borderColor: 'warning.main',
-                  transition: 'transform 0.2s',
+                  overflow: 'hidden',
+                  animation: 'ehtFadeRise 520ms ease both',
+                  animationDelay: `${index * 90}ms`,
+                  transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-4px)',
-                    boxShadow: 4,
+                    boxShadow: 6,
                   },
                 }}
               >
@@ -114,13 +150,17 @@ export const PendingPaymentsPage: React.FC = () => {
                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                       (e.target as any).src = 'https://via.placeholder.com/300x250?text=Receipt+Not+Available';
                     }}
-                    sx={{ objectFit: 'contain', p: 1, bgcolor: 'grey.100' }}
+                    sx={{
+                      objectFit: 'contain',
+                      p: 1.5,
+                      bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.26)' : 'rgba(255,255,255,0.72)',
+                    }}
                   />
                 )}
 
-                <CardContent sx={{ flexGrow: 1 }}>
+                <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
                   {/* Header with Status */}
-                  <Box sx={{ mb: 2, pb: 2, borderBottom: '1px solid ', borderColor: 'divider' }}>
+                  <Box sx={{ mb: 2.25, pb: 2.25, borderBottom: '1px solid ', borderColor: 'divider' }}>
                     <Chip
                       label={t(`common.${payment.status}`)}
                       color="warning"
@@ -133,7 +173,7 @@ export const PendingPaymentsPage: React.FC = () => {
                   </Box>
 
                   {/* Customer Details */}
-                  <Box sx={{ mb: 2 }}>
+                  <Box sx={{ mb: 2.25 }}>
                     <Typography variant="subtitle2" color="textSecondary">
                       {t('payments.customer')}:
                     </Typography>
@@ -143,7 +183,7 @@ export const PendingPaymentsPage: React.FC = () => {
                   </Box>
 
                   {/* Freelancer Details */}
-                  <Box sx={{ mb: 2 }}>
+                  <Box sx={{ mb: 2.25 }}>
                     <Typography variant="subtitle2" color="textSecondary">
                       {t('payments.freelancer')}:
                     </Typography>
@@ -155,11 +195,17 @@ export const PendingPaymentsPage: React.FC = () => {
                   <Divider sx={{ my: 2 }} />
 
                   {/* Sender Details */}
-                  <Box sx={{ mb: 2 }}>
+                  <Box sx={{ mb: 2.25 }}>
                     <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
                       {t('payments.senderDetails')}
                     </Typography>
-                    <Paper variant="outlined" sx={{ p: 1.5, bgcolor: 'grey.50' }}>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 1.75,
+                        bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.84)',
+                      }}
+                    >
                       <Typography variant="body2">
                         <strong>{t('customers.name')}:</strong> {payment.senderName}
                       </Typography>
@@ -179,13 +225,14 @@ export const PendingPaymentsPage: React.FC = () => {
                 </CardContent>
 
                 {/* Action Buttons */}
-                <CardActions sx={{ gap: 1, pt: 0 }}>
+                <CardActions sx={{ gap: 1, pt: 0, px: 2.5, pb: 2.25 }}>
                   <Button
                     size="small"
                     variant="contained"
                     color="success"
                     startIcon={<CheckCircleIcon />}
                     onClick={() => handleViewDetails(payment, 'approve')}
+                    disabled={processing}
                     fullWidth
                   >
                     {t('payments.approvePayment')}
@@ -196,6 +243,7 @@ export const PendingPaymentsPage: React.FC = () => {
                     color="error"
                     startIcon={<CancelIcon />}
                     onClick={() => handleViewDetails(payment, 'reject')}
+                    disabled={processing}
                     fullWidth
                   >
                     {t('payments.rejectPayment')}
@@ -294,6 +342,7 @@ export const PendingPaymentsPage: React.FC = () => {
               variant="contained"
               color="success"
               startIcon={<CheckCircleIcon />}
+              disabled={processing}
             >
               {t('payments.approvePayment')}
             </Button>
@@ -302,7 +351,7 @@ export const PendingPaymentsPage: React.FC = () => {
               onClick={handleRejectPayment}
               variant="contained"
               color="error"
-              disabled={!rejectionReason.trim()}
+              disabled={!rejectionReason.trim() || processing}
               startIcon={<CancelIcon />}
             >
               {t('payments.rejectPayment')}

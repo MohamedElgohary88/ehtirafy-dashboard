@@ -15,6 +15,16 @@ const resources = {
       'nav.language': 'اللغة',
       'nav.theme': 'المظهر',
 
+      // Auth
+      'auth.title': 'تسجيل دخول المدير',
+      'auth.subtitle': 'سجّل الدخول للوصول إلى لوحة التحكم وإدارة العمليات.',
+      'auth.email': 'البريد الإلكتروني',
+      'auth.password': 'كلمة المرور',
+      'auth.deviceToken': 'رمز الجهاز',
+      'auth.loginButton': 'تسجيل الدخول',
+      'auth.loginFailed': 'فشل تسجيل الدخول، يرجى التحقق من البيانات.',
+      'auth.adminOnly': 'يسمح بالدخول لحسابات المدير فقط.',
+
       // Overview Page
       'overview.title': 'نظرة عامة',
       'overview.totalCustomers': 'إجمالي العملاء',
@@ -44,6 +54,7 @@ const resources = {
       'customers.actions': 'الإجراءات',
       'customers.viewDetails': 'عرض التفاصيل',
       'customers.bookingHistory': 'سجل الحجوزات',
+      'customers.subtitle': 'متابعة بيانات العملاء، الإنفاق، وسجل الحجوزات بجودة عرض واضحة.',
 
       // Freelancers Page
       'freelancers.title': 'إدارة المصورين',
@@ -54,6 +65,7 @@ const resources = {
       'freelancers.rating': 'التقييم',
       'freelancers.totalProjects': 'إجمالي المشاريع',
       'freelancers.bankDetails': 'بيانات البنك',
+      'freelancers.subtitle': 'تقييم الحسابات واعتماد المصورين مع رؤية أوضح للأداء والموثوقية.',
 
       // Services Page
       'services.title': 'مراجعة الخدمات',
@@ -65,6 +77,7 @@ const resources = {
       'services.accept': 'قبول',
       'services.reject': 'رفض',
       'services.viewDetails': 'عرض التفاصيل',
+      'services.subtitle': 'مراجعة جودة الخدمات قبل النشر لضمان تجربة احترافية للعملاء.',
 
       // Payments Page
       'payments.title': 'التحقق من المدفوعات',
@@ -79,6 +92,7 @@ const resources = {
       'payments.approvePayment': 'الموافقة على الدفع',
       'payments.rejectPayment': 'رفض الدفع',
       'payments.rejectionReason': 'سبب الرفض',
+      'payments.subtitle': 'مراجعة إيصالات التحويل والتحقق من البيانات قبل تفعيل العقود.',
       'payments.allVerified': 'تم التحقق من جميع المدفوعات، لا توجد مدفوعات معلقة حالياً.',
       'payments.rejectionPlaceholder': 'اكتب سبب الرفض، مثل: الإيصال غير واضح أو المبلغ لا يطابق المطلوب.',
       'payments.approveHint': 'الموافقة على هذه الدفعة ستُفعّل العقد مباشرة بين العميل والمصور.',
@@ -120,6 +134,16 @@ const resources = {
       'nav.language': 'Language',
       'nav.theme': 'Theme',
 
+      // Auth
+      'auth.title': 'Admin Login',
+      'auth.subtitle': 'Sign in to access dashboard controls and operations.',
+      'auth.email': 'Email',
+      'auth.password': 'Password',
+      'auth.deviceToken': 'Device Token',
+      'auth.loginButton': 'Login',
+      'auth.loginFailed': 'Login failed. Please verify your credentials.',
+      'auth.adminOnly': 'Only admin accounts are allowed to access the dashboard.',
+
       // Overview Page
       'overview.title': 'Overview',
       'overview.totalCustomers': 'Total Customers',
@@ -149,6 +173,7 @@ const resources = {
       'customers.actions': 'Actions',
       'customers.viewDetails': 'View Details',
       'customers.bookingHistory': 'Booking History',
+      'customers.subtitle': 'Track customer profiles, spending behavior, and booking history with clarity.',
 
       // Freelancers Page
       'freelancers.title': 'Freelancer Management',
@@ -159,6 +184,7 @@ const resources = {
       'freelancers.rating': 'Rating',
       'freelancers.totalProjects': 'Total Projects',
       'freelancers.bankDetails': 'Bank Details',
+      'freelancers.subtitle': 'Review photographer accounts with clear insights on quality and trust.',
 
       // Services Page
       'services.title': 'Service Approval',
@@ -170,6 +196,7 @@ const resources = {
       'services.accept': 'Accept',
       'services.reject': 'Reject',
       'services.viewDetails': 'View Details',
+      'services.subtitle': 'Review service quality before publishing to protect customer experience.',
 
       // Payments Page
       'payments.title': 'Payment Verification',
@@ -184,6 +211,7 @@ const resources = {
       'payments.approvePayment': 'Approve Payment',
       'payments.rejectPayment': 'Reject Payment',
       'payments.rejectionReason': 'Rejection Reason',
+      'payments.subtitle': 'Verify transfer receipts and sender details before activating contracts.',
       'payments.allVerified': 'All payments are verified. No pending payments right now.',
       'payments.rejectionPlaceholder': 'Enter rejection reason, for example: invalid receipt or amount mismatch.',
       'payments.approveHint': 'Approving this payment will activate the contract between customer and freelancer.',

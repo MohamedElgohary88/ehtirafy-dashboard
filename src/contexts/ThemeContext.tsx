@@ -30,6 +30,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   const toggleTheme = () => {
@@ -79,6 +80,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       },
       h4: {
         fontWeight: 700,
+        lineHeight: 1.25,
+      },
+      body1: {
+        lineHeight: 1.7,
+      },
+      body2: {
+        lineHeight: 1.65,
       },
       button: {
         textTransform: 'none',
@@ -111,10 +119,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
           },
         },
       },
+      MuiCardContent: {
+        styleOverrides: {
+          root: {
+            padding: '22px',
+            '&:last-child': {
+              paddingBottom: '22px',
+            },
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: {
             borderRadius: 12,
+            paddingInline: '16px',
+            paddingBlock: '8px',
           },
         },
       },
@@ -125,13 +145,43 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
           },
         },
       },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            borderRadius: 18,
+            border: isDarkMode ? '1px solid rgba(235, 202, 126, 0.18)' : '1px solid rgba(181, 138, 47, 0.16)',
+            background: isDarkMode
+              ? 'linear-gradient(160deg, #2a1f12 0%, #22190f 100%)'
+              : 'linear-gradient(160deg, #fffefb 0%, #fff7e6 100%)',
+          },
+        },
+      },
+      MuiTableContainer: {
+        styleOverrides: {
+          root: {
+            borderRadius: 18,
+            border: isDarkMode ? '1px solid rgba(235, 202, 126, 0.18)' : '1px solid rgba(181, 138, 47, 0.16)',
+            overflow: 'hidden',
+          },
+        },
+      },
       MuiTableHead: {
         styleOverrides: {
           root: {
             '& .MuiTableCell-head': {
               fontWeight: 700,
               color: isDarkMode ? '#f4e3bf' : '#5b4514',
+              backgroundColor: isDarkMode ? 'rgba(183,138,42,0.14)' : 'rgba(215,177,95,0.26)',
             },
+          },
+        },
+      },
+      MuiTableCell: {
+        styleOverrides: {
+          root: {
+            paddingTop: 14,
+            paddingBottom: 14,
+            borderBottomColor: isDarkMode ? 'rgba(235, 202, 126, 0.14)' : 'rgba(181, 138, 47, 0.15)',
           },
         },
       },
@@ -141,6 +191,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
             '&:hover': {
               backgroundColor: isDarkMode ? 'rgba(183,138,42,0.08)' : 'rgba(183,138,42,0.06)',
             },
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            fontWeight: 700,
+            borderRadius: 10,
           },
         },
       },

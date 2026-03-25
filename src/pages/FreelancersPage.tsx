@@ -10,7 +10,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CircularProgress,
   Alert,
   Chip,
   Button,
@@ -19,11 +18,13 @@ import {
   DialogContent,
   DialogActions,
   Rating,
+  Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
 import type { Freelancer } from '../types';
+import { PageLoadingState } from '../components/PageLoadingState';
 
 export const FreelancersPage: React.FC = () => {
   const { t } = useTranslation();
@@ -41,25 +42,11 @@ export const FreelancersPage: React.FC = () => {
     setSelectedFreelancer(null);
   };
 
-  const handleApprove = async () => {
-    if (selectedFreelancer) {
-      await apiService.approveFreelancer(selectedFreelancer.id);
-      handleCloseDialog();
-    }
-  };
-
-  const handleSuspend = async () => {
-    if (selectedFreelancer) {
-      await apiService.suspendFreelancer(selectedFreelancer.id);
-      handleCloseDialog();
-    }
-  };
-
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="xl">
+        <PageLoadingState variant="table" />
+      </Container>
     );
   }
 
@@ -81,15 +68,34 @@ export const FreelancersPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
-        {t('freelancers.title')}
-      </Typography>
+    <Container maxWidth="xl">
+      <Paper
+        sx={{
+          p: { xs: 2, md: 3 },
+          mb: 3,
+          animation: 'ehtFadeRise 420ms ease both',
+          background: theme => theme.palette.mode === 'dark'
+            ? 'linear-gradient(140deg, rgba(64,47,15,0.72), rgba(40,30,12,0.78))'
+            : 'linear-gradient(140deg, rgba(243,224,173,0.72), rgba(255,249,235,0.86))',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+              {t('freelancers.title')}
+            </Typography>
+            <Typography color="text.secondary">
+              {t('freelancers.subtitle')}
+            </Typography>
+          </Box>
+          <Chip label={`${freelancers?.length || 0} ${t('nav.freelancers')}`} color="primary" />
+        </Stack>
+      </Paper>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ p: 0.5, animation: 'ehtFadeRise 560ms ease both' }}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: 'primary.light' }}>
+            <TableRow>
               <TableCell>{t('freelancers.portfolio')}</TableCell>
               <TableCell>{t('customers.email')}</TableCell>
               <TableCell align="center">{t('freelancers.rating')}</TableCell>
@@ -144,7 +150,7 @@ export const FreelancersPage: React.FC = () => {
         <DialogTitle>{t('customers.viewDetails')}</DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
           {selectedFreelancer && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.25 }}>
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   {t('customers.name')}
@@ -197,17 +203,7 @@ export const FreelancersPage: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
-          {selectedFreelancer?.accountStatus !== 'approved' && (
-            <Button onClick={handleApprove} variant="contained" color="success">
-              {t('freelancers.approve')}
-            </Button>
-          )}
-          {selectedFreelancer?.accountStatus !== 'suspended' && (
-            <Button onClick={handleSuspend} variant="contained" color="error">
-              {t('freelancers.suspend')}
-            </Button>
-          )}
+          <Button onClick={handleCloseDialog}>{t('common.close')}</Button>
         </DialogActions>
       </Dialog>
     </Container>

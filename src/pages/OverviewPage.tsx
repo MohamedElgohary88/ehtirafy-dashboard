@@ -1,9 +1,10 @@
 import React from 'react';
-import { Box, Container, Grid, Card, CardContent, Typography, CircularProgress, Alert, Chip } from '@mui/material';
+import { Box, Container, Grid, Card, CardContent, Typography, Alert, Chip } from '@mui/material';
 import { TrendingUp, TaskAlt, AssignmentTurnedIn, Groups, CameraAlt, CalendarMonth, StarRate } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
+import { PageLoadingState } from '../components/PageLoadingState';
 
 export const OverviewPage: React.FC = () => {
   const { t } = useTranslation();
@@ -11,9 +12,9 @@ export const OverviewPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="xl">
+        <PageLoadingState variant="stats" />
+      </Container>
     );
   }
 
@@ -32,9 +33,14 @@ export const OverviewPage: React.FC = () => {
     <Card
       sx={{
         height: '100%',
+        animation: 'ehtFadeRise 520ms ease both',
         background: theme => theme.palette.mode === 'dark'
           ? 'linear-gradient(145deg, rgba(42,30,16,0.96), rgba(26,18,10,0.95))'
           : 'linear-gradient(145deg, rgba(255,254,249,0.96), rgba(252,245,229,0.98))',
+        '&:hover': {
+          transform: 'translateY(-6px)',
+          boxShadow: 7,
+        },
       }}
     >
       <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
@@ -120,6 +126,7 @@ export const OverviewPage: React.FC = () => {
         sx={{
           mb: 3,
           overflow: 'hidden',
+          animation: 'ehtFadeRise 420ms ease both',
           background: theme => theme.palette.mode === 'dark'
             ? 'linear-gradient(130deg, rgba(73,53,18,0.94), rgba(152,113,35,0.84))'
             : 'linear-gradient(130deg, rgba(233,199,124,0.98), rgba(184,136,43,0.93))',
@@ -128,10 +135,21 @@ export const OverviewPage: React.FC = () => {
         <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
             <Box>
-              <Typography variant="h4" sx={{ mb: 1, color: '#2d2008' }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  mb: 1,
+                  color: theme => theme.palette.mode === 'dark' ? '#fff4dd' : '#2d2008',
+                }}
+              >
                 {t('overview.title')}
               </Typography>
-              <Typography sx={{ color: 'rgba(34,24,6,0.88)', fontWeight: 500 }}>
+              <Typography
+                sx={{
+                  color: theme => theme.palette.mode === 'dark' ? 'rgba(255,244,221,0.9)' : 'rgba(34,24,6,0.88)',
+                  fontWeight: 500,
+                }}
+              >
                 {t('overview.heroSubtitle')}
               </Typography>
             </Box>
@@ -139,12 +157,20 @@ export const OverviewPage: React.FC = () => {
               <Chip
                 icon={<TrendingUp />}
                 label={t('overview.growth')}
-                sx={{ bgcolor: 'rgba(45,32,8,0.12)', color: '#2d2008', fontWeight: 700 }}
+                sx={{
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255,244,221,0.18)' : 'rgba(45,32,8,0.12)',
+                  color: theme => theme.palette.mode === 'dark' ? '#fff4dd' : '#2d2008',
+                  fontWeight: 700,
+                }}
               />
               <Chip
                 icon={<TaskAlt />}
                 label={t('overview.systemStable')}
-                sx={{ bgcolor: 'rgba(45,32,8,0.12)', color: '#2d2008', fontWeight: 700 }}
+                sx={{
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255,244,221,0.18)' : 'rgba(45,32,8,0.12)',
+                  color: theme => theme.palette.mode === 'dark' ? '#fff4dd' : '#2d2008',
+                  fontWeight: 700,
+                }}
               />
             </Box>
           </Box>
@@ -162,6 +188,7 @@ export const OverviewPage: React.FC = () => {
           <Card
             sx={{
               height: '100%',
+              animation: 'ehtFadeRise 640ms ease both',
               bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(126, 93, 30, 0.33)' : 'rgba(183,138,42,0.18)',
             }}
           >
