@@ -10,7 +10,7 @@ interface ImageWithFallbackProps extends BoxProps<'img'> {
 
 export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ 
   src, 
-  fallbackSrc = '/logo.png', 
+  fallbackSrc = `${import.meta.env.BASE_URL}logo.png`, 
   alt = '', 
   ...props 
 }) => {

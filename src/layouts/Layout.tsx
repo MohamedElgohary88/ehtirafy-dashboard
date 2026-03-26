@@ -76,7 +76,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
     <Box sx={{ width: 270, height: '100%' }}>
       <Box sx={{ px: 2.5, py: 2.25, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <img src="/logo.png" alt="Logo" style={{ height: 36, objectFit: 'contain' }} />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" style={{ height: 36, objectFit: 'contain' }} />
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2, fontSize: '1.1rem' }}>
               {t('common.appName')}
@@ -158,7 +158,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
 
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-              <img src="/logo.png" alt="Logo" style={{ height: 32, objectFit: 'contain' }} />
+              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" style={{ height: 32, objectFit: 'contain' }} />
             </Box>
             <Box>
               <Typography variant="h6" component="div" sx={{ fontWeight: 800, lineHeight: 1.2 }}>

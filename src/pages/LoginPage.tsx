@@ -93,7 +93,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           }} />
 
           <Box sx={{ zIndex: 1, textAlign: 'center', p: 4, animation: 'ehtFadeRise 0.8s ease' }}>
-            <img src="/logo.png" alt="Logo" style={{ height: 180, objectFit: 'contain', marginBottom: 24 }} />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" style={{ height: 180, objectFit: 'contain', marginBottom: 24 }} />
             <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, textShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
               {t('common.appName')}
             </Typography>
@@ -119,7 +119,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           <Container maxWidth="sm" sx={{ py: 4, px: { xs: 2, sm: 4 } }}>
             {isMobile && (
               <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <img src="/logo.png" alt="Logo" style={{ height: 100, objectFit: 'contain', marginBottom: 16 }} />
+                <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" style={{ height: 100, objectFit: 'contain', marginBottom: 16 }} />
                 <Typography variant="h5" sx={{ fontWeight: 800 }}>
                   {t('common.appName')}
                 </Typography>

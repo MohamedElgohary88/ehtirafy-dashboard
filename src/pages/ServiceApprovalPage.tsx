@@ -183,7 +183,7 @@ export const ServiceApprovalPage: React.FC = () => {
                     sx={{ objectFit: 'cover' }}
                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = '/logo.png';
+                      target.src = `${import.meta.env.BASE_URL}logo.png`;
                       target.style.objectFit = 'contain';
                       target.style.padding = '2rem';
                       target.style.backgroundColor = 'rgba(183,138,42,0.06)';
