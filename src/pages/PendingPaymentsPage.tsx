@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -19,8 +19,11 @@ import {
   Divider,
   Paper,
   Stack,
+  InputAdornment
 } from '@mui/material';
-import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons-material';
+import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon, Search as SearchIcon } from '@mui/icons-material';
+import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
@@ -35,6 +38,19 @@ export const PendingPaymentsPage: React.FC = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [action, setAction] = useState<'approve' | 'reject' | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const pendingPayments = useMemo(() => {
+    if (!payments) return [];
+    return payments.filter(p => {
+      if (p.status !== 'pending') return false;
+      if (!searchQuery) return true;
+      const lowerQuery = searchQuery.toLowerCase();
+      return p.customerName.toLowerCase().includes(lowerQuery) || 
+             p.freelancerName.toLowerCase().includes(lowerQuery) ||
+             p.senderName.toLowerCase().includes(lowerQuery);
+    });
+  }, [payments, searchQuery]);
 
   const handleViewDetails = (payment: PaymentProof, actionType: 'approve' | 'reject') => {
     setSelectedPayment(payment);
@@ -55,8 +71,11 @@ export const PendingPaymentsPage: React.FC = () => {
       setProcessing(true);
       try {
         await apiService.approvePayment(selectedPayment.id);
+        toast.success(t('payments.approveSuccess', 'Payment approved successfully!'));
         await reload();
         handleCloseDialog();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t('common.error', 'An error occurred'));
       } finally {
         setProcessing(false);
       }
@@ -68,8 +87,11 @@ export const PendingPaymentsPage: React.FC = () => {
       setProcessing(true);
       try {
         await apiService.rejectPayment(selectedPayment.id, rejectionReason);
+        toast.success(t('payments.rejectSuccess', 'Payment rejected'));
         await reload();
         handleCloseDialog();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t('common.error', 'An error occurred'));
       } finally {
         setProcessing(false);
       }
@@ -87,8 +109,6 @@ export const PendingPaymentsPage: React.FC = () => {
   if (error) {
     return <Alert severity="error">{t('common.error')}: {error}</Alert>;
   }
-
-  const pendingPayments = payments?.filter(p => p.status === 'pending') || [];
 
   return (
     <Container maxWidth="xl">
@@ -115,7 +135,25 @@ export const PendingPaymentsPage: React.FC = () => {
         </Stack>
       </Paper>
 
-      {pendingPayments.length === 0 ? (
+      {/* Filters Section */}
+      <Paper sx={{ p: 2, mb: 3, display: 'flex', gap: 2, alignItems: 'center', animation: 'ehtFadeRise 480ms ease both' }}>
+        <TextField
+          size="small"
+          placeholder={t('common.search', 'Search by customer, freelancer or sender...')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ minWidth: { xs: '100%', sm: 350 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Paper>
+
+      {pendingPayments.length === 0 && !searchQuery ? (
         <Alert severity="success">
           {t('payments.allVerified')}
         </Alert>
@@ -123,23 +161,24 @@ export const PendingPaymentsPage: React.FC = () => {
         <Grid container spacing={3}>
           {pendingPayments.map((payment, index) => (
             <Grid item xs={12} md={6} lg={4} key={payment.id}>
-              <Card
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  border: '1px solid',
-                  borderColor: 'warning.main',
-                  overflow: 'hidden',
-                  animation: 'ehtFadeRise 520ms ease both',
-                  animationDelay: `${index * 90}ms`,
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 6,
-                  },
-                }}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1, type: 'spring', stiffness: 100 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                style={{ height: '100%' }}
               >
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    border: '1px solid',
+                    borderColor: 'warning.main',
+                    overflow: 'hidden',
+                    boxShadow: 3,
+                  }}
+                >
                 {/* Receipt Image */}
                 {payment.receiptImage && (
                   <CardMedia
@@ -148,7 +187,7 @@ export const PendingPaymentsPage: React.FC = () => {
                     image={payment.receiptImage}
                     alt="Payment Receipt"
                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                      (e.target as any).src = 'https://via.placeholder.com/300x250?text=Receipt+Not+Available';
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x250?text=Receipt+Not+Available';
                     }}
                     sx={{
                       objectFit: 'contain',
@@ -250,6 +289,7 @@ export const PendingPaymentsPage: React.FC = () => {
                   </Button>
                 </CardActions>
               </Card>
+              </motion.div>
             </Grid>
           ))}
         </Grid>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -19,7 +19,12 @@ import {
   DialogActions,
   Rating,
   Stack,
+  TextField,
+  Select,
+  MenuItem,
+  InputAdornment
 } from '@mui/material';
+import { Search as SearchIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
@@ -31,6 +36,18 @@ export const FreelancersPage: React.FC = () => {
   const { data: freelancers, loading, error } = useData(() => apiService.getFreelancers());
   const [selectedFreelancer, setSelectedFreelancer] = useState<Freelancer | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const filteredFreelancers = useMemo(() => {
+    if (!freelancers) return [];
+    return freelancers.filter(f => {
+      const matchesSearch = f.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            f.email.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || f.accountStatus === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [freelancers, searchQuery, statusFilter]);
 
   const handleViewDetails = (freelancer: Freelancer) => {
     setSelectedFreelancer(freelancer);
@@ -92,6 +109,40 @@ export const FreelancersPage: React.FC = () => {
         </Stack>
       </Paper>
 
+      {/* Filters Section */}
+      <Paper sx={{ p: 2, mb: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', animation: 'ehtFadeRise 480ms ease both' }}>
+        <TextField
+          size="small"
+          placeholder={t('common.search', 'Search by name or email...')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ minWidth: { xs: '100%', sm: 300 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <Select
+          size="small"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          sx={{ minWidth: { xs: '100%', sm: 200 } }}
+          startAdornment={
+            <InputAdornment position="start">
+              <FilterIcon color="action" fontSize="small" />
+            </InputAdornment>
+          }
+        >
+          <MenuItem value="all">{t('common.all', 'All Status')}</MenuItem>
+          <MenuItem value="approved">{t('common.approved')}</MenuItem>
+          <MenuItem value="pending">{t('common.pending')}</MenuItem>
+          <MenuItem value="suspended">{t('common.suspended')}</MenuItem>
+        </Select>
+      </Paper>
+
       <TableContainer component={Paper} sx={{ p: 0.5, animation: 'ehtFadeRise 560ms ease both' }}>
         <Table>
           <TableHead>
@@ -105,8 +156,8 @@ export const FreelancersPage: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {freelancers && freelancers.length > 0 ? (
-              freelancers.map((freelancer) => (
+            {filteredFreelancers && filteredFreelancers.length > 0 ? (
+              filteredFreelancers.map((freelancer) => (
                 <TableRow key={freelancer.id} hover>
                   <TableCell sx={{ fontWeight: 500 }}>{freelancer.name}</TableCell>
                   <TableCell>{freelancer.email}</TableCell>

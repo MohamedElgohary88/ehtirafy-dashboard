@@ -7,7 +7,6 @@ export interface Customer {
   createdAt: string;
   totalBookings: number;
   totalSpent: number;
-  status: 'active' | 'inactive';
 }
 
 export interface Freelancer {

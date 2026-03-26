@@ -70,11 +70,6 @@ const firstArray = (value: unknown, keys: string[]): unknown[] => {
   return [];
 };
 
-const normalizeActiveState = (value: unknown): 'active' | 'inactive' => {
-  const raw = ensureString(value, '').toLowerCase();
-  if (['active', 'approved', 'completed', 'published', '1', 'true'].includes(raw)) return 'active';
-  return 'inactive';
-};
 
 const normalizeFreelancerState = (value: unknown): Freelancer['accountStatus'] => {
   const raw = ensureString(value, '').toLowerCase();
@@ -304,7 +299,6 @@ class ApiService {
       createdAt,
       totalBookings: ensureNumber(item.total_bookings ?? item.bookings_count),
       totalSpent: ensureNumber(item.total_spent ?? item.total_amount),
-      status: normalizeActiveState(item.status ?? item.is_active ?? userNode.is_active),
     };
   };
 
@@ -319,7 +313,6 @@ class ApiService {
           createdAt: '2024-01-15',
           totalBookings: 5,
           totalSpent: 2500,
-          status: 'active',
         },
       ];
     }

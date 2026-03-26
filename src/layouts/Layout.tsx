@@ -31,6 +31,8 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguageDirection } from '../hooks';
+import { Footer } from '../components/Footer';
+import { Toaster } from 'react-hot-toast';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -73,13 +75,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
   const drawerContent = (
     <Box sx={{ width: 270, height: '100%' }}>
       <Box sx={{ px: 2.5, py: 2.25, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            Al-Batal Admin
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.8 }}>
-            Photography Marketplace
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <img src="/logo.png" alt="Logo" style={{ height: 36, objectFit: 'contain' }} />
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2, fontSize: '1.1rem' }}>
+              {t('common.appName')}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 500 }}>
+              Photography Marketplace
+            </Typography>
+          </Box>
         </Box>
         <IconButton
           onClick={handleDrawerToggle}
@@ -126,6 +131,19 @@ export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      <Toaster 
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            borderRadius: '16px',
+            background: isDarkMode ? '#2c220f' : '#fffdfa',
+            color: isDarkMode ? '#f8f0df' : '#2c220f',
+            border: isDarkMode ? '1px solid rgba(235, 202, 126, 0.18)' : '1px solid rgba(181, 138, 47, 0.16)',
+            boxShadow: isDarkMode ? '0 10px 30px rgba(0,0,0,0.35)' : '0 10px 25px rgba(120,87,24,0.18)',
+            padding: '16px'
+          },
+        }}
+      />
       {/* App Bar */}
       <AppBar position="fixed" sx={{ zIndex: 1201 }}>
         <Toolbar sx={{ minHeight: 72 }}>
@@ -138,13 +156,18 @@ export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
             <MenuIcon />
           </IconButton>
 
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-              Al-Batal Dashboard
-            </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.85 }}>
-              Operations and approvals center
-            </Typography>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <img src="/logo.png" alt="Logo" style={{ height: 32, objectFit: 'contain' }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" component="div" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+                {t('common.appName')}
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.85, fontWeight: 500 }}>
+                Operations and approvals center
+              </Typography>
+            </Box>
           </Box>
 
           {/* Language Selector */}
@@ -250,11 +273,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
           p: { xs: 2, md: 3 },
           mt: 8,
           width: { xs: '100%', sm: 'calc(100% - 270px)' },
-          minHeight: '100vh',
+          minHeight: 'calc(100vh - 64px)',
           backgroundColor: 'transparent',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {children}
+        <Box sx={{ flexGrow: 1 }}>
+          {children}
+        </Box>
+        <Footer />
       </Box>
     </Box>
   );

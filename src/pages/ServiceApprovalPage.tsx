@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -18,8 +18,11 @@ import {
   TextField,
   Paper,
   Stack,
+  InputAdornment
 } from '@mui/material';
-import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons-material';
+import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon, Search as SearchIcon, ImageOutlined as ImageIcon } from '@mui/icons-material';
+import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
@@ -34,6 +37,17 @@ export const ServiceApprovalPage: React.FC = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [action, setAction] = useState<'approve' | 'reject' | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const allServices = useMemo(() => {
+    if (!services) return [];
+    if (!searchQuery) return services;
+    const lowerQuery = searchQuery.toLowerCase();
+    return services.filter(s => 
+      s.serviceName.toLowerCase().includes(lowerQuery) || 
+      s.freelancerName.toLowerCase().includes(lowerQuery)
+    );
+  }, [services, searchQuery]);
 
   const handleViewDetails = (service: ServiceRequest, actionType: 'approve' | 'reject') => {
     setSelectedService(service);
@@ -54,8 +68,11 @@ export const ServiceApprovalPage: React.FC = () => {
       setProcessing(true);
       try {
         await apiService.approveService(selectedService.id);
+        toast.success(t('services.approveSuccess', 'Service approved successfully!'));
         await reload();
         handleCloseDialog();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t('common.error', 'An error occurred'));
       } finally {
         setProcessing(false);
       }
@@ -67,8 +84,11 @@ export const ServiceApprovalPage: React.FC = () => {
       setProcessing(true);
       try {
         await apiService.rejectService(selectedService.id, rejectionReason);
+        toast.success(t('services.rejectSuccess', 'Service rejected'));
         await reload();
         handleCloseDialog();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t('common.error', 'An error occurred'));
       } finally {
         setProcessing(false);
       }
@@ -86,8 +106,6 @@ export const ServiceApprovalPage: React.FC = () => {
   if (error) {
     return <Alert severity="error">{t('common.error')}: {error}</Alert>;
   }
-
-  const allServices = services || [];
 
   return (
     <Container maxWidth="xl">
@@ -114,7 +132,25 @@ export const ServiceApprovalPage: React.FC = () => {
         </Stack>
       </Paper>
 
-      {allServices.length === 0 ? (
+      {/* Filters Section */}
+      <Paper sx={{ p: 2, mb: 3, display: 'flex', gap: 2, alignItems: 'center', animation: 'ehtFadeRise 480ms ease both' }}>
+        <TextField
+          size="small"
+          placeholder={t('common.search', 'Search by service or freelancer...')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ minWidth: { xs: '100%', sm: 350 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Paper>
+
+      {allServices.length === 0 && !searchQuery ? (
         <Alert severity="info">
           {t('services.title')}: 0
         </Alert>
@@ -122,31 +158,70 @@ export const ServiceApprovalPage: React.FC = () => {
         <Grid container spacing={3}>
           {allServices.map((service, index) => (
             <Grid item xs={12} sm={6} md={4} key={service.id}>
-              <Card
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden',
-                  animation: 'ehtFadeRise 520ms ease both',
-                  animationDelay: `${index * 90}ms`,
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-6px)',
-                    boxShadow: 6,
-                  },
-                }}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1, type: 'spring', stiffness: 100 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                style={{ height: '100%' }}
               >
-                {service.images && service.images.length > 0 && (
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    boxShadow: 2,
+                  }}
+                >
+                {service.images && service.images.length > 0 && service.images[0] ? (
                   <CardMedia
                     component="img"
                     height="200"
                     image={service.images[0]}
                     alt={service.serviceName}
+                    sx={{ objectFit: 'cover' }}
                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                      (e.target as any).src = 'https://via.placeholder.com/300x200?text=No+Image';
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/logo.png';
+                      target.style.objectFit = 'contain';
+                      target.style.padding = '2rem';
+                      target.style.backgroundColor = 'rgba(183,138,42,0.06)';
                     }}
                   />
+                ) : (
+                  <Box
+                    sx={{
+                      height: 200,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: theme => theme.palette.mode === 'dark' 
+                        ? 'linear-gradient(145deg, rgba(30,22,12,1) 0%, rgba(20,14,8,1) 100%)'
+                        : 'linear-gradient(145deg, #fbf7ee 0%, #f1e9d3 100%)',
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(235, 202, 126, 0.08)' : 'rgba(183, 138, 42, 0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 1.5
+                      }}
+                    >
+                      <ImageIcon sx={{ fontSize: 28, color: 'primary.main', opacity: 0.8 }} />
+                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                      {t('common.noImage', 'لا توجد صورة')}
+                    </Typography>
+                  </Box>
                 )}
                 <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
                   <Box sx={{ mb: 2.25 }}>
@@ -211,6 +286,7 @@ export const ServiceApprovalPage: React.FC = () => {
                   )}
                 </CardActions>
               </Card>
+              </motion.div>
             </Grid>
           ))}
         </Grid>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -19,8 +19,10 @@ import {
   DialogActions,
   Button,
   Stack,
+  TextField,
+  InputAdornment
 } from '@mui/material';
-import { Visibility as VisibilityIcon } from '@mui/icons-material';
+import { Visibility as VisibilityIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../hooks';
 import { apiService } from '../services/api';
@@ -32,6 +34,16 @@ export const CustomersPage: React.FC = () => {
   const { data: customers, loading, error } = useData(() => apiService.getCustomers());
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCustomers = useMemo(() => {
+    if (!customers) return [];
+    return customers.filter(c => {
+      const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            c.email.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }, [customers, searchQuery]);
 
   const handleViewDetails = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -80,6 +92,24 @@ export const CustomersPage: React.FC = () => {
         </Stack>
       </Paper>
 
+      {/* Filters Section */}
+      <Paper sx={{ p: 2, mb: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', animation: 'ehtFadeRise 480ms ease both' }}>
+        <TextField
+          size="small"
+          placeholder={t('common.search', 'Search by name or email...')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ minWidth: { xs: '100%', sm: 300 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Paper>
+
       <TableContainer component={Paper} sx={{ p: 0.5, animation: 'ehtFadeRise 560ms ease both' }}>
         <Table>
           <TableHead>
@@ -89,13 +119,12 @@ export const CustomersPage: React.FC = () => {
               <TableCell>{t('customers.phone')}</TableCell>
               <TableCell align="center">{t('customers.totalBookings')}</TableCell>
               <TableCell align="right">{t('customers.totalSpent')}</TableCell>
-              <TableCell>{t('customers.status')}</TableCell>
               <TableCell align="center">{t('customers.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {customers && customers.length > 0 ? (
-              customers.map((customer) => (
+            {filteredCustomers && filteredCustomers.length > 0 ? (
+              filteredCustomers.map((customer) => (
                 <TableRow key={customer.id} hover>
                   <TableCell sx={{ fontWeight: 500 }}>{customer.name}</TableCell>
                   <TableCell>{customer.email}</TableCell>
@@ -103,13 +132,6 @@ export const CustomersPage: React.FC = () => {
                   <TableCell align="center">{customer.totalBookings}</TableCell>
                   <TableCell align="right">
                     SAR {customer.totalSpent.toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={t(`common.${customer.status}`)}
-                      color={customer.status === 'active' ? 'success' : 'default'}
-                      size="small"
-                    />
                   </TableCell>
                   <TableCell align="center">
                     <IconButton

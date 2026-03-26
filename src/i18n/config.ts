@@ -103,6 +103,8 @@ const resources = {
       'common.bank': 'البنك',
 
       // Common
+      'common.appName': 'البطل للتصوير والمناسبات',
+      'common.allRightsReserved': 'جميع الحقوق محفوظة',
       'common.actions': 'الإجراءات',
       'common.status': 'الحالة',
       'common.createdAt': 'تاريخ الإنشاء',
@@ -222,6 +224,8 @@ const resources = {
       'common.bank': 'Bank',
 
       // Common
+      'common.appName': 'Al-Batal Photography & Events',
+      'common.allRightsReserved': 'All rights reserved',
       'common.actions': 'Actions',
       'common.status': 'Status',
       'common.createdAt': 'Created At',
