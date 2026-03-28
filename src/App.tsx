@@ -12,6 +12,7 @@ const CustomersPage = lazy(() => import('./pages/CustomersPage').then(module => 
 const FreelancersPage = lazy(() => import('./pages/FreelancersPage').then(module => ({ default: module.FreelancersPage })));
 const ServiceApprovalPage = lazy(() => import('./pages/ServiceApprovalPage').then(module => ({ default: module.ServiceApprovalPage })));
 const PendingPaymentsPage = lazy(() => import('./pages/PendingPaymentsPage').then(module => ({ default: module.PendingPaymentsPage })));
+const ContractsPage = lazy(() => import('./pages/ContractsPage').then(module => ({ default: module.ContractsPage })));
 
 function App() {
   const routerBase = import.meta.env.BASE_URL === '/'
@@ -66,6 +67,7 @@ function App() {
                       <Route path="/freelancers" element={<FreelancersPage />} />
                       <Route path="/services" element={<ServiceApprovalPage />} />
                       <Route path="/payments" element={<PendingPaymentsPage />} />
+                      <Route path="/contracts" element={<ContractsPage />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </Suspense>

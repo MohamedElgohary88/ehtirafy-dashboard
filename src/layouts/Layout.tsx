@@ -21,6 +21,7 @@ import {
   Camera as CameraIcon,
   DoneAll as DoneAllIcon,
   Payment as PaymentIcon,
+  Description as ContractIcon,
   Logout as LogoutIcon,
   Brightness4 as Brightness4Icon,
   Brightness7 as Brightness7Icon,
@@ -69,6 +70,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
     { label: t('nav.customers'), icon: <PeopleIcon />, path: '/customers' },
     { label: t('nav.freelancers'), icon: <CameraIcon />, path: '/freelancers' },
     { label: t('nav.services'), icon: <DoneAllIcon />, path: '/services' },
+    { label: t('nav.contracts'), icon: <ContractIcon />, path: '/contracts' },
     { label: t('nav.payments'), icon: <PaymentIcon />, path: '/payments' },
   ];
 

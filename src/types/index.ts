@@ -67,13 +67,17 @@ export interface PaymentProof {
 export interface Contract {
   id: string;
   customerId: string;
+  customerName: string;
   freelancerId: string;
-  serviceId: string;
-  status: 'pending_payment' | 'active' | 'completed' | 'cancelled';
+  freelancerName: string;
+  advertisementId: string;
+  serviceName: string;
+  contractStatus: 'initiated' | 'pending' | 'Approved' | 'InProcess' | 'Completed' | 'Cancelled' | 'Rejected';
+  pubStatus: string;
+  custStatus: string;
   amount: number;
   createdAt: string;
-  startDate?: string;
-  endDate?: string;
+  updatedAt: string;
 }
 
 // Statistics Types

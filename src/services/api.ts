@@ -1,4 +1,4 @@
-import type { Customer, Freelancer, ServiceRequest, PaymentProof, DashboardStats } from '../types';
+import type { Customer, Freelancer, ServiceRequest, PaymentProof, DashboardStats, Contract } from '../types';
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -86,6 +86,24 @@ const normalizeTransactionStatus = (value: unknown): PaymentProof['status'] => {
 };
 
 const localizedName = (value: unknown): string => {
+  // Handle JSON-encoded strings like '{"ar":"...","en":"..."}'
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const htmlLang = typeof document !== 'undefined' ? document.documentElement.lang : 'en';
+          if (htmlLang.startsWith('ar')) return ensureString(parsed.ar ?? parsed.en, '-');
+          return ensureString(parsed.en ?? parsed.ar, '-');
+        }
+      } catch {
+        // Not valid JSON, fall through to return as plain string
+      }
+    }
+    return value || '-';
+  }
+
   const node = asRecord(value);
   if (Object.keys(node).length === 0) return ensureString(value, '-');
 
@@ -507,8 +525,8 @@ class ApiService {
       id: ensureString(item.id, crypto.randomUUID()),
       freelancerId: ensureString(item.user_id),
       freelancerName: ensureString(item.user_name ?? item.freelancer_name, `#${ensureString(item.user_id, '-')}`),
-      serviceName: ensureString(item.title, 'Untitled Service'),
-      description: ensureString(item.description, '-'),
+      serviceName: localizedName(item.title) || ensureString(item.title, 'Untitled Service'),
+      description: localizedName(item.description) || ensureString(item.description, '-'),
       price: ensureNumber(item.price),
       category: categoryName,
       images: Array.isArray(item.images)
@@ -519,7 +537,7 @@ class ApiService {
       reviewedAt: ensureString(item.approval_at),
       reviewedBy: ensureString(item.approval_by),
       // Surface days availability to admins inside description when backend sends it.
-      ...(availabilityText ? { description: `${ensureString(item.description, '-')}${ensureString(item.description) ? ' | ' : ''}Days: ${availabilityText}` } : {}),
+      ...(availabilityText ? { description: `${localizedName(item.description) || ensureString(item.description, '-')} | Days: ${availabilityText}` } : {}),
     };
   };
 
@@ -552,17 +570,14 @@ class ApiService {
 
   async approveService(id: string): Promise<void> {
     if (!this.hasBackendConfig()) return;
-    const formData = new FormData();
-    formData.append('status', 'approved');
-    await this.request(`dashboard/advertisements/${id}/action`, { method: 'POST', body: formData }, true);
+    await this.request(`dashboard/advertisements/${id}/approve`, { method: 'POST' });
   }
 
   async rejectService(id: string, reason: string): Promise<void> {
     if (!this.hasBackendConfig()) return;
     const formData = new FormData();
-    formData.append('status', 'rejected');
     formData.append('note', reason);
-    await this.request(`dashboard/advertisements/${id}/action`, { method: 'POST', body: formData }, true);
+    await this.request(`dashboard/advertisements/${id}/reject`, { method: 'POST', body: formData }, true);
   }
 
   private mapPayment = (item: UnknownRecord): PaymentProof => {
@@ -669,6 +684,37 @@ class ApiService {
 
   async rejectPayment(id: string, reason: string): Promise<void> {
     await this.updateTransaction({ transactionId: id, status: 'rejected', note: reason });
+  }
+
+  private mapContract = (item: UnknownRecord): Contract => {
+    const customer = asRecord(item.customer);
+    const publisher = asRecord(item.publisher);
+    const advertisement = asRecord(item.advertisement);
+
+    return {
+      id: ensureString(item.id),
+      customerId: ensureString(item.customer_id ?? customer.id),
+      customerName: ensureString(customer.name ?? item.customer_name, `Customer #${ensureString(item.customer_id, '-')}`),
+      freelancerId: ensureString(item.publisher_id ?? publisher.id),
+      freelancerName: ensureString(publisher.name ?? item.publisher_name, `Freelancer #${ensureString(item.publisher_id, '-')}`),
+      advertisementId: ensureString(item.advertisement_id ?? advertisement.id),
+      serviceName: localizedName(advertisement.title) || ensureString(advertisement.title, 'Service'),
+      contractStatus: ensureString(item.contract_status, 'initiated') as Contract['contractStatus'],
+      pubStatus: ensureString(item.contr_pub_status, '-'),
+      custStatus: ensureString(item.contr_cust_status, '-'),
+      amount: ensureNumber(item.actual_amount ?? item.requested_amount ?? advertisement.price),
+      createdAt: ensureString(item.created_at, new Date().toISOString()),
+      updatedAt: ensureString(item.updated_at ?? item.created_at, new Date().toISOString()),
+    };
+  };
+
+  async getContracts(): Promise<Contract[]> {
+    if (!this.hasBackendConfig()) return [];
+
+    // Fetch contracts from both customer and freelancer perspectives to get all
+    const response = await this.request<unknown>('front/contracts-relative?user_type=customer');
+    const rows = firstArray(response, ['data', 'contracts', 'items']);
+    return rows.map(item => this.mapContract(asRecord(item)));
   }
 }
 
